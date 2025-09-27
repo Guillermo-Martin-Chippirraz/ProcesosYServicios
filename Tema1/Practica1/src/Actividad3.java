@@ -17,13 +17,30 @@ public class Actividad3 {
         }
 
         // Ruta del archivo CSV de salida
-        String salidaCSV = "listado.csv";
+        String salidaCSV = new File("listado.csv").getAbsolutePath();
 
         // Comando para generar el CSV usando bash y redirigir a archivo
-        String comando = String.format("bash -c \"ls -l '%s' | tail -n +2 | awk '{perm=$1; size=$5; name=$9; " +
-                "); print name \",\" size \",\" perm}' > '%s'\"", directorio, salidaCSV);
+        /*
+        bash -c: Ejecuta el comando que viene después entre comillas dobles
+        ls -l: Lista los archivos del directorio en formato largo
+        | tail -n +2: Elimina la primera línea de lo que devuelve ls -l, que suele ser total N
+        | awk '{}': Procesa cada línea con awk para extraer y manipular los campos
+        perm=$1: guarda los permisos del archivo
+        size=$5: guarda el tamaño en bytes
+        type=(substr(perm,1,1)==\"d\" ? \"directorio\" : \"archivo\"): extrae el primer carácter de los permisos y si
+        es d, almacena la palabra directorio, si no, almacena la palabra archivo
+        name=""; for(i=9;i=NF;i++) name=name $i " ";: Reconstruye el nombre del archivo desde el campo 9 hasta el final,
+        indicado por NF, esto permite incluir espacios
+        name=substr(name,1,length(name)-1);: Elimina el espacio extra al final
+        print name "," size "," perm "," type: Imprime en formato CSV los datos
+        > salidaCSV: Redirige la salida al archivo CSV
+         */
+        String comando = "bash -c \"ls -l " + directorio + " | tail -n +2 | awk '{perm=$1; size=$5; " +
+                "type=(substr(perm, 1, 1)==\"d\" ? \"directorio\" : \"archivo\"); name=\"\"; for(i=9; i<=NF; i++) " +
+                "name=name $i \" \"; name=substr(name,1,length(name)-1; print name \",\" size \",\" perm \",\" type}' " +
+                "> " + salidaCSV + "\"";
 
-        try{
+        try {
             ProcessBuilder pb = new ProcessBuilder("bash", "-c", comando);
             pb.inheritIO(); //Redirige la salida del proceso al terminal
             Process proceso = pb.start();
