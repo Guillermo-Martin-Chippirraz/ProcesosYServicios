@@ -1,47 +1,36 @@
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 
 public class Actividad3 {
-    public static void main(String[] args){
-        if(args.length != 1)
-            System.out.println("Uso: java ListadoDirectorioCSV <ruta_del_directorio>");
-        else {
-            String rutaDirectorio = args[0];
-            File directorio = new File(rutaDirectorio);
-
-            if (!directorio.exists() || !directorio.isDirectory())
-                System.out.println("No se pudo acceder al contenido del directorio");
-            else {
-                File[] archivos = directorio.listFiles();
-                if (archivos == null){
-                    System.out.println("No se pudo acceder al contenido del directorio.");
-                }else {
-                    String nombreArchivoCSV = "listado_directorio.csv";
-                    try(BufferedWriter writer = new BufferedWriter(new FileWriter(nombreArchivoCSV))){
-                        for (File archivo : archivos){
-                            String nombre = archivo.getName();
-                            String tipo = archivo.isDirectory() ? "Directorio" : "Archivo";
-                            long tamaño = archivo.length();
-                            String permisos = obtenerPermisos(archivo);
-
-                            String linea = nombre + "," + tipo + "," + tamaño + "," + permisos;
-                            writer.write(linea);
-                            writer.newLine();
-                        }
-                    }catch (IOException e){
-                        System.out.println("Error al escribir el archivo CSV: " + e.getMessage());
-                    }
-                }
-            }
+    public static void main(String[] args) {
+        if (args.length != 1){
+            System.err.println("Uso: java Actividad3 <directorio>");
+            System.exit(1);
         }
-    }
 
-    private static String obtenerPermisos(File path){
-        String permisos = "";
+        String directorio = args[0];
+        File dir = new File(directorio);
 
-        permisos += path.canRead() ? "r" : "-";
-        permisos += path.canWrite() ? "w" : "-";
-        permisos += path.canExecute() ? "x" : "-";
+        if (!dir.exists() || !dir.isDirectory()){
+            System.err.println("El directorio especificado no existe o no es válido.");
+            System.exit(1);
+        }
 
-        return permisos;
+        // Ruta del archivo CSV de salida
+        String salidaCSV = "listado.csv";
+
+        // Comando para generar el CSV usando bash y redirigir a archivo
+        String comando = String.format("bash -c \"ls -l '%s' | tail -n +2 | awk '{perm=$1; size=$5; name=$9; " +
+                "); print name \",\" size \",\" perm}' > '%s'\"", directorio, salidaCSV);
+
+        try{
+            ProcessBuilder pb = new ProcessBuilder("bash", "-c", comando);
+            pb.inheritIO(); //Redirige la salida del proceso al terminal
+            Process proceso = pb.start();
+            proceso.waitFor();
+            System.out.println("Listado generado en: " + salidaCSV);
+        }catch (IOException | InterruptedException e){
+            e.printStackTrace();
+        }
     }
 }
