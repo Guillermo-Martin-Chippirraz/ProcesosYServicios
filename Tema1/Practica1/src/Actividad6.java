@@ -91,7 +91,7 @@ public class Actividad6 {
                 else System.err.println("Error, se debe introducir un fichero para copiar con la opción \"-f\".");
                 break;
             case "-ds":
-                if (originPath.isDirectory()) return new String[]{"cp", originPath.getAbsolutePath(),
+                if (originPath.isDirectory()) return new String[]{"cp", "-d", originPath.getAbsolutePath(),
                         destinyPath.getAbsolutePath()};
                 else System.err.println("Error, se debe introducir un fichero para copiar con la opción \"-ds\".");
                 break;
@@ -196,6 +196,7 @@ public class Actividad6 {
         do {
             ProcessBuilder accion = new ProcessBuilder(comandos);
             try {
+                accion.inheritIO();
                 Process process = accion.start();
                 int exitCode = process.waitFor();
                 if (exitCode == 0){
