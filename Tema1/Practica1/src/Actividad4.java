@@ -6,7 +6,7 @@ import java.io.IOException;
 /**
  * Clase para la actividad 4.
  * @author Guillermo Martín Chippirraz
- * @version v1.4
+ * @version v1.5
  */
 public class Actividad4 {
     /**
@@ -62,7 +62,7 @@ public class Actividad4 {
      *     </li>
      *
      * </ol>
-     * @param args
+     * @param args Array de objetos de la clase String que deberá estar vacío.
      */
     public static void main(String[] args) {
         String os = System.getProperty("os.name").toLowerCase();
