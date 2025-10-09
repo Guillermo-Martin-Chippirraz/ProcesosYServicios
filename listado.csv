@@ -2,6 +2,7 @@ Ruta: /home/tarde/Documentos
 Nombre,Tamaño,Permisos,Tipo
 Acceso a datos,4096,drwxrwxr-x,directorio
 Desarrollo de interfaces,4096,drwxrwxr-x,directorio
+DriveFisica,4096,drwxrwxr-x,directorio
 Programación de Servicios y Procesos,4096,drwxrwxr-x,directorio
 Programación Multimedia y Dispositivos Móviles,4096,drwxrwxr-x,directorio
 Proyecto intermodular,4096,drwxrwxr-x,directorio
