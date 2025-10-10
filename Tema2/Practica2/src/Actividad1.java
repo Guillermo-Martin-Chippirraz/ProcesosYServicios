@@ -1,5 +1,3 @@
-import java.util.Random;
-
 public class Actividad1 extends Thread{
     private int[] datos;
     private int inicio, fin;
