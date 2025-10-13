@@ -1,3 +1,5 @@
+package Tema2.Practica;
+
 import java.util.Random;
 
 public class Main {

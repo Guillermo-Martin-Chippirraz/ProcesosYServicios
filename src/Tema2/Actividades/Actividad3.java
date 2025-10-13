@@ -1,3 +1,5 @@
+package Tema2.Actividades;
+
 import java.util.Random;
 
 public class Actividad3 extends Thread{

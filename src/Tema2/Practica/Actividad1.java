@@ -1,3 +1,5 @@
+package Tema2.Practica;
+
 public class Actividad1 extends Thread{
     private int[] datos;
     private int inicio, fin;
