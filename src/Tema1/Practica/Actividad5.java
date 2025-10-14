@@ -1,3 +1,5 @@
+package Tema1.Practica;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -110,7 +112,7 @@ public class Actividad5 {
      */
     public static void main(String[] args) {
         if (args.length != 2){
-            System.err.println("Uso: java Actividad5 <origin_path> <destiny_path>");
+            System.err.println("Uso: java Tema1.Practica.Actividad5 <origin_path> <destiny_path>");
             System.exit(1);
         }
 

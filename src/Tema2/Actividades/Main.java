@@ -1,19 +1,21 @@
+package Tema2.Actividades;
+
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
     public static void main(String[] args) {
 
-//        Actividad1 hilo1 = new Actividad1("Primer hilo");
-//        Actividad1 hilo2 = new Actividad1("Segundo hilo");
-//        Actividad1 hilo3 = new Actividad1("Tercer hilo");
+//        Tema2.Actividades.Actividad1 hilo1 = new Tema2.Actividades.Actividad1("Primer hilo");
+//        Tema2.Actividades.Actividad1 hilo2 = new Tema2.Actividades.Actividad1("Segundo hilo");
+//        Tema2.Actividades.Actividad1 hilo3 = new Tema2.Actividades.Actividad1("Tercer hilo");
 //
 //        hilo1.start();
 //        hilo2.start();
 //        hilo3.start();
 
-//        Thread hilo1 = new Thread(new Actividad2("Primer hilo"));
-//        Thread hilo2 = new Thread(new Actividad2("Segundo hilo"));
-//        Thread hilo3 = new Thread(new Actividad2("Tercer hilo"));
+//        Thread hilo1 = new Thread(new Tema2.Actividades.Actividad2("Primer hilo"));
+//        Thread hilo2 = new Thread(new Tema2.Actividades.Actividad2("Segundo hilo"));
+//        Thread hilo3 = new Thread(new Tema2.Actividades.Actividad2("Tercer hilo"));
 //
 //        hilo1.start();
 //        hilo2.start();

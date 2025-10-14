@@ -1,9 +1,11 @@
+package Tema1.Practica;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Scanner;
 
 /**
- * Clase para la Actividad6.
+ * Clase para la Tema1.Practica.Actividad6.
  * @author Guillermo Martín Chippirraz
  * @version v1.5
  */

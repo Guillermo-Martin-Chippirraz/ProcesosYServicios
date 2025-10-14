@@ -1,3 +1,5 @@
+package Tema1.Practica;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -92,7 +94,7 @@ public class Actividad3 {
      */
     public static void main(String[] args) {
         if (args.length != 1){
-            System.err.println("Uso: java Actividad3 <directorio>");
+            System.err.println("Uso: java Tema1.Practica.Actividad3 <directorio>");
             System.exit(1);
         }
 
