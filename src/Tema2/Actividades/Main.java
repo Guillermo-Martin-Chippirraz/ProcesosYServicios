@@ -45,9 +45,8 @@ public class Main {
 //        }catch (InterruptedException e){
 //            System.out.println("Error al esperar los hilos.");
 //        }
-//
-//        int suma = dado1.getResultado() + dado2.getResultado() + dado3.getResultado();
-//        System.out.println("Suma total de las tiradas: " + suma);
+
+//        System.out.println("Suma total de las tiradas: " + Actividad3.getSuma());
 
 //        Contador contador = new Contador();
 //
