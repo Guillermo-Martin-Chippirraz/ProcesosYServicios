@@ -94,6 +94,7 @@ public class Store {
      * @see #getPackNum()
      */
     public synchronized void agregarPaquete(){
+        System.out.println("Comenzando proceso de agregado de paquete...");
         while (getPackNum() >= MAX_PACK){
             try {
                 wait();
@@ -102,7 +103,8 @@ public class Store {
             }
         }
         setPackNum(getPackNum() + 1);
-        notify();
+        System.out.println("Paquete agregado exitosamente");
+        notifyAll();
     }
 
     /**
@@ -115,6 +117,7 @@ public class Store {
      * @see #setTotalVehicles(int)
      */
     public synchronized void llevarPaquete(){
+        System.out.println("Proceso de extracción de paquete iniciado...");
         while (getPackNum() <= MIN_PACK || getTotalVehicles() <= 0){
             try {
                 wait();
@@ -124,7 +127,8 @@ public class Store {
         }
         setPackNum(getPackNum() - 1);
         setTotalVehicles(getTotalVehicles() - 1);
-        notify();
+        System.out.println("Paquete extraído con éxito.");
+        notifyAll();
     }
 
     /**

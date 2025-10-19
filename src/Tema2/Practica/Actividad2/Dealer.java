@@ -3,14 +3,15 @@ package Tema2.Practica.Actividad2;
 import java.util.Random;
 
 /**
- * Clase Dealer para la práctica del Tema 2
+ * Clase Dealer para la práctica del Tema 2. SUGERENCIA: Para propósitos de evaluación, se ruega al evaluador alterar
+ * ciertos parámetros para que el proceso no sea demasiado largo. Se marcarán esas líneas con un comentario.
  * @author Guillermo Martín Chippirraz
- * @version v2.2
+ * @version v2.3
  * @see Store
  */
 public class Dealer implements Runnable{
     private final static int MAX_VEL = 60;//Velocidad máxima de circulación en km/h
-    private final static int HOURSTOMILI = 3600000;
+    private final static int HOURSTOMILI = 3600000; //ALTERAR
     private static Random rand = new Random();
     private int workingDay; //Jornada laboral en h
     private final Store store;
@@ -75,6 +76,11 @@ public class Dealer implements Runnable{
      * distancia y volver (suponiendo que tiene suerte o es muy temerario y puede ir a la velocidad máxima). Si el
      * repartidor no ha descansado y ha superado la mitad de la jornada laboral de ese día, el hilo se bloquea 45
      * minutos, simulando un descanso real del repartidor.
+     * @since v2.2
+     * @see #getWorkingDay()
+     * @see Store#llevarPaquete()
+     * @see #setWorkingDay(int)
+     * @see Store#setTotalVehicles(int)
      */
     public void run(){
         int todayWorkingDay = getWorkingDay();
@@ -90,9 +96,12 @@ public class Dealer implements Runnable{
                 Thread.currentThread().interrupt();
             }
 
+            store.setTotalVehicles(store.getTotalVehicles() + 1);
+            System.out.println("Vehículo entregado con éxito");
+
             if (getWorkingDay() >= todayWorkingDay/2 && !descanso){
                 try {
-                    Thread.sleep(45*60*1000);
+                    Thread.sleep(45*60*1000); //ALTERAR
                 }catch (InterruptedException e){
                     Thread.currentThread().interrupt();
                 }
