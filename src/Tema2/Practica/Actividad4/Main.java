@@ -1,5 +1,8 @@
 package Tema2.Practica.Actividad4;
 
+/**
+ * Clase Main para la actividad 4 de la práctica 2
+ */
 public class Main {
     public static void main(String[] args) {
         Dispositivo nvme = new Dispositivo("NVMe", 3);
