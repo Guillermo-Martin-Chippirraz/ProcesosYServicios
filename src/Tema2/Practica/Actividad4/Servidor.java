@@ -3,7 +3,7 @@ package Tema2.Practica.Actividad4;
 /**
  * Clase Servidor para la actividad 4 de la práctica 2
  * @author Guillermo Martín Chippirraz
- * @version v2.4
+ * @version v2.5
  * @see Dispositivo
  */
 public class Servidor implements Runnable{
@@ -25,11 +25,15 @@ public class Servidor implements Runnable{
      * @since v2.4
      * @see Dispositivo#procesarSolicitudes()
      */
-    public void run(){
-        try {
-            dispositivo.procesarSolicitudes();
-        }catch (InterruptedException e){
-            Thread.currentThread().interrupt();
+    public void run() {
+        while (!Thread.currentThread().isInterrupted()) {
+            try {
+                dispositivo.procesarSolicitudes();
+                Thread.sleep(100); // Evita consumo excesivo de CPU
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt(); // Marca el hilo como interrumpido
+            }
         }
     }
+
 }

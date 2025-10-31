@@ -3,7 +3,7 @@ package Tema2.Practica.Actividad4;
 /**
  * Clase Dispositivo para la actividad 4 de la práctica del tema 2
  * @author Guillermo Martín Chippirraz
- * @version 2.4.1
+ * @version 2.5
  * @see Solicitud
  */
 public class Dispositivo {
@@ -78,6 +78,7 @@ public class Dispositivo {
             int index = count++;
             buffer[index] = s;
             notifyAll();
+            System.out.println("Capacidad ocupada del dispositivo " + nombre + ": " + count);
             return true;
         }
         return false;
@@ -134,7 +135,7 @@ public class Dispositivo {
                     buffer[j] = buffer[j+1];
                 }
                 int index = count--;
-                buffer[index] = new Solicitud();
+                buffer[index - 1] = new Solicitud();
                 return s;
             }
         }

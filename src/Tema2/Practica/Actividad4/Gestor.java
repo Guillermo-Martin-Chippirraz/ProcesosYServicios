@@ -3,7 +3,7 @@ package Tema2.Practica.Actividad4;
 /**
  * Clase Gestor para la actividad 4 de la práctica del tema 2
  * @author Guillermo Martín Chippirraz
- * @version v2.4.1
+ * @version v2.5
  * @see Dispositivo
  * @see Solicitud
  */
@@ -69,51 +69,48 @@ public class Gestor {
      * @param s Objeto de la clase solicitud que se va a intentar procesar
      * @throws InterruptedException En caso de interrupción del proceso se lanza una excepción
      */
-    public void procesarSolicitud(Solicitud s) throws InterruptedException{
+    public void procesarSolicitud(Solicitud s) throws InterruptedException {
         boolean procesada = false;
-        if (s.esAltaPrioridad()){
-            synchronized (nvme){
-                if (nvme.hayEspacio()){
-                    if(nvme.agregar(s))
-                        procesada = true;
-                }
-            }
 
-            if (!procesada){
-                synchronized (hdd){
-                    if (hdd.hayEspacio()){
-                        if (hdd.agregar(s))
-                            procesada = true;
-
-                    }
-                    if (!procesada){
-                        if (hdd.reemplazarBajaPrioridad(s))
-                            procesada = true;
-
-                    }
-
-                    if (!procesada){
-                        synchronized (s){
-                            s.wait();
-                        }
-                    }
-                }
-            }
-        }else {
-            synchronized (hdd){
-                if (hdd.hayEspacio()){
-                    if (hdd.agregar(s))
-                        procesada = true;
-                }
-
-                if (!procesada){
-                    synchronized (s){
-                        s.wait();
-                    }
+        synchronized (nvme) {
+            if (nvme.hayEspacio()) {
+                if (nvme.agregar(s)) {
+                    procesada = true;
+                    System.out.println("La solicitud con id " + s.getId() + " ha sido agregada al servidor NVMe");
                 }
             }
         }
+
+        if (!procesada) {
+            synchronized (hdd) {
+                if (hdd.hayEspacio()) {
+                    if (hdd.agregar(s)) {
+                        procesada = true;
+                        System.out.println("La solicitud con id " + s.getId() + " ha sido agregada al servidor HDD");
+                    }
+                }
+
+                // Si sigue sin procesarse y es de alta prioridad, intenta reemplazar
+                if (!procesada && s.esAltaPrioridad()) {
+                    if (hdd.reemplazarBajaPrioridad(s)) {
+                        procesada = true;
+                        System.out.println("La solicitud con id " + s.getId() + " ha reemplazado una solicitud de baja prioridad en HDD");
+                    }
+                }
+
+                hdd.notifyAll(); // Notifica a servidores que puedan estar esperando
+            }
+        }
+
+        if (!procesada) {
+            synchronized (s) {
+                s.wait();
+                System.out.println("Solicitud " + s.getId() + " en espera.");
+            }
+        }
     }
+
+
 
     /**
      * Método para la reubicación de solicitudes. Pasos:
