@@ -3,7 +3,7 @@ package Tema2.Practica.Actividad4;
 /**
  * Clase Gestor para la actividad 4 de la práctica del tema 2
  * @author Guillermo Martín Chippirraz
- * @version v2.5
+ * @version v2.5.1
  * @see Dispositivo
  * @see Solicitud
  */
@@ -31,43 +31,47 @@ public class Gestor {
     }
 
     /**
-     * Método para el procesamiento de solicitudes. Pasos:
+     * Método para el procesamiento de solicitudes almacenadas en el buffer del dispositivo. Pasos:
      * <ol>
      *     <li>
-     *         Se declara una variable «procesada» y se le asigna false
+     *         Se comprueba si el valor almacenado en el atributo «count» es mayor que cero, lo que indica que hay solicitudes pendientes.
      *     </li>
      *     <li>
-     *         Si la Solicitud introducida por parámetros es de alta prioridad:
+     *         Si hay solicitudes:
      *         <ol>
      *             <li>
-     *                 Se sincroniza el objeto «nvme», se comprueba si hay espacio y se agrega. Si ha sido posible pasar
-     *                 por esos filtros de verigicación, la variable «procesasda» se asigna a true.
+     *                 Se declara un objeto de la clase Solicitud y se le asigna la copia superficial del primer elemento del buffer.
      *             </li>
      *             <li>
-     *                 Se comprueba el valor de «procesada» y si es false, se sincroniza el objeto «hdd» y se actúa de
-     *                 forma similar al caso del objeto «nvme».
+     *                 Se inicia un bucle for que desplaza todos los elementos del buffer una posición hacia la izquierda, sobrescribiendo la solicitud procesada.
      *             </li>
      *             <li>
-     *                 En caso de que «procesada» siga siendo false, se reemplaza la prioridad de la solicitud a
-     *                 prioridad baja y se cambia el valor de «procesada» a true.
+     *                 En la última posición del buffer (correspondiente a «count - 1»), se almacena una nueva instancia por defecto de la clase Solicitud.
      *             </li>
      *             <li>
-     *                 Si no ha sido posible nada de esto, se sincroniza la solicitud y se la pone en espera.
+     *                 Se decrementa el valor del atributo «count» en uno, actualizando el número de solicitudes pendientes.
+     *             </li>
+     *             <li>
+     *                 Se declara una variable String «prioridad» que se inicializa como «Baja». Si la solicitud procesada es de alta prioridad, se cambia a «Alta».
+     *             </li>
+     *             <li>
+     *                 Se imprime por pantalla el mensaje indicando que el dispositivo está procesando la solicitud, incluyendo su id y prioridad.
+     *             </li>
+     *             <li>
+     *                 Se bloquea el hilo mediante el método sleep() durante el tiempo indicado por la duración de la solicitud multiplicada por 100.
+     *             </li>
+     *             <li>
+     *                 Se llama al método notifyAll() para despertar a los hilos que pudieran estar esperando espacio en el buffer.
      *             </li>
      *         </ol>
      *     </li>
-     *     <li>
-     *         En caso contrario, se intenta agregar al objeto «hdd» igual que antes y si no es posible, se pone en
-     *         espera la solicitud.
-     *     </li>
      * </ol>
      * @since v2.4
+     * @see Solicitud#Solicitud()
      * @see Solicitud#esAltaPrioridad()
-     * @see Dispositivo#hayEspacio()
-     * @see Dispositivo#agregar(Solicitud)
-     * @see Dispositivo#reemplazarBajaPrioridad(Solicitud)
-     * @param s Objeto de la clase solicitud que se va a intentar procesar
-     * @throws InterruptedException En caso de interrupción del proceso se lanza una excepción
+     * @see Solicitud#getId()
+     * @see Solicitud#getDuracion()
+     * @throws InterruptedException En caso de interrupción del hilo durante el procesamiento de la solicitud
      */
     public void procesarSolicitud(Solicitud s) throws InterruptedException {
         boolean procesada = false;

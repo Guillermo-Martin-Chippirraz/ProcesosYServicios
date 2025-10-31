@@ -3,7 +3,7 @@ package Tema2.Practica.Actividad4;
 /**
  * Clase Solicitud para la actividad 4 de la práctica 2
  * @author Guillermo Martín Chippirraz
- * @version 2.4.1
+ * @version 2.5.1
  * @see Gestor
  */
 public class Solicitud implements Runnable{
@@ -75,11 +75,37 @@ public class Solicitud implements Runnable{
     }
 
     /**
-     * Implementación del método run() de la interfaz Runnable
-     * En un bloque try se instancia desde el atributo gestor al método procesarSolicitud con el objeto llamador como
-     * parámetro. El catch controla las excepciones debidas a una interrupción del proceso.
-     * @since 2.4
-     * @see Gestor#procesarSolicitud(Solicitud)
+     * Método para la ejecución continua del servidor. Pasos:
+     * <ol>
+     *     <li>
+     *         Se inicia un bucle infinito que se ejecuta mientras el hilo no haya sido interrumpido.
+     *     </li>
+     *     <li>
+     *         En cada iteración del bucle:
+     *         <ol>
+     *             <li>
+     *                 Se llama al método procesarSolicitudes() del objeto Dispositivo almacenado en el atributo dispositivo.
+     *             </li>
+     *             <li>
+     *                 Se bloquea el hilo durante 100 milisegundos para evitar un consumo excesivo de CPU.
+     *             </li>
+     *         </ol>
+     *     </li>
+     *     <li>
+     *         Si se produce una excepción de tipo InterruptedException:
+     *         <ol>
+     *             <li>
+     *                 Se marca el hilo como interrumpido mediante el método interrupt().
+     *             </li>
+     *             <li>
+     *                 Se rompe el bucle para finalizar la ejecución del hilo de forma controlada.
+     *             </li>
+     *         </ol>
+     *     </li>
+     * </ol>
+     * @since v2.4.2
+     * @see Dispositivo#procesarSolicitudes()
+     * @throws InterruptedException En caso de interrupción del hilo durante el procesamiento o la pausa
      */
     public void run(){
         try {
