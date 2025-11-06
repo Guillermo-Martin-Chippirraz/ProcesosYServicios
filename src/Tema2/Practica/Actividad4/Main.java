@@ -11,8 +11,11 @@ public class Main {
         ThreadGroup solicitudesGrupo = new ThreadGroup("Solicitudes");
 
         // Lanzar servidores
-        new Thread(new Servidor(nvme)).start();
-        new Thread(new Servidor(hdd)).start();
+        Thread servidorNvme = new Thread(new Servidor(nvme));
+        Thread servidorHdd = new Thread(new Servidor(hdd));
+        servidorNvme.start();
+        servidorHdd.start();
+
 
         // Generar solicitudes
         for (int i = 0; i < 30; i++){
@@ -27,6 +30,19 @@ public class Main {
 
             //Reubicar si hay nuevo espacio en NVMe
             gestor.reubicarSolicitudes();
+
+            // Esperar a que todas las solicitudes terminen
+            while (solicitudesGrupo.activeCount() > 0) {
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+
+            // Interrumpir servidores
+            servidorNvme.interrupt();
+            servidorHdd.interrupt();
         }
     }
 }
