@@ -18,7 +18,7 @@ public class Biblioteca implements Serializable{
      * @author Guillermo Martín Chippirraz
      * @version v3.2
      */
-    public class Libro implements Serializable{
+    public static class Libro implements Serializable{
         private String titulo;
         private String genero;
 
@@ -195,10 +195,84 @@ public class Biblioteca implements Serializable{
     }
 
     /**
-     * TODO Documentar
-     * @param idCliente
-     * @param titulo
-     * @return
+     * Método sincronizado prestarLibro.
+     * Secuencia de ejecución:
+     * <ol>
+     *     <li>
+     *         En la condición del if se evalúa si el atributo libros está vacío. De ser así:
+     *         <ol>
+     *             <li>
+     *                 Se imprime un mensaje de retroalimentación por pantalla.
+     *             </li>
+     *             <li>
+     *                 En el bloque try se invoca al método wait();
+     *             </li>
+     *             <li>
+     *                 En el catch: Se monitorean las excepciones de interrupción, devolviéndose la excepción hallada
+     *                 e interrumpiéndose el hilo, en caso de encontrar una.
+     *             </li>
+     *         </ol>
+     *          En cualquier otro caso, se sigue la secuencia de ejecución.
+     *     </li>
+     *     <li>
+     *         Se declara la variable boolean libroEnStock y se le asigna false.
+     *     </li>
+     *     <li>
+     *         Se declara el objeto de la clase Libro libroPedido y se inicializa con el constructor por defecto.
+     *     </li>
+     *     <li>
+     *         Por cada objeto de la clase Libro almacenado en el atributo libros, si el atributo titulo de dicho objeto
+     *         coincide con el valor del String en el parámetro titulo:
+     *         <ol>
+     *             <li>
+     *                 Se asigna el valor true a la variable libroEnStock.
+     *             </li>
+     *             <li>
+     *                 Se copia superficialmente dicho objeto en la variable libroPerdido.
+     *             </li>
+     *             <li>
+     *                 Se elimina el objeto del atributo libros.
+     *             </li>
+     *         </ol>
+     *     </li>
+     *     <li>
+     *         Si el valor almacenado en la variable libroEnStock es false:
+     *         <ol>
+     *             <li>
+     *                 Se imprime un mensaje de retroalimentación.
+     *             </li>
+     *             <li>
+     *                 En el bloque try se invoca el método wait().
+     *             </li>
+     *             <li>
+     *                 En el catch: Se monitorean las excepciones de interrupción, devolviéndose la excepción hallada
+     *                 e interrumpiéndose el hilo, en caso de encontrar una.
+     *             </li>
+     *         </ol>
+     *     </li>
+     *     <li>
+     *         Se imprime un mensaje de éxito.
+     *     </li>
+     *     <li>
+     *         Se crea un objeto de la clase auxiliar Peticion peticion y se inicializa con el constructor por parámetros al que
+     *         se pasa el parámetro idCliente y la variable libroPedido.
+     *     </li>
+     *     <li>
+     *         Se invoca al método notifyAll()
+     *     </li>
+     *     <li>
+     *         Se declara el String datosPeticion y se le asigna el JSON devuelto por el método toString() del objeto
+     *         peticion.
+     *     </li>
+     * </ol>
+     * @since v3.2.1
+     * @see Libro
+     * @see Libro#getTitulo()
+     * @see Peticion#Peticion(int, Biblioteca.Libro)
+     * @see Peticion#toString()
+     * @param idCliente Entero que se enviará como parámetro al constructor de la clase auxiliar Peticion
+     * @param titulo String que se usará como filtro para buscar el objeto de la clase Libro a solicitar.
+     * @return String con los datos de la petición
      */
     public synchronized String prestarLibro(int idCliente, String titulo){
         if (libros.isEmpty()){
@@ -211,11 +285,11 @@ public class Biblioteca implements Serializable{
             }
         }
         boolean libroEnStock = false;
-        String datosLibro = "";
+        Libro libroPedido = new Libro();
         for (Libro libro : libros){
             if (libro.getTitulo().equals(titulo)){
                 libroEnStock = true;
-                datosLibro = libro.toString();
+                libroPedido = libro;
                 libros.remove(libro);
             }
         }
@@ -230,15 +304,9 @@ public class Biblioteca implements Serializable{
         }
 
         System.out.println("Bibliotecario sabrosón: Aquí tieneh tu libro, mi amol.");
-        long fechaLimiteDevolucion = random.nextLong(15) + 10;
+        Peticion peticion = new Peticion(idCliente, libroPedido);
         notifyAll();
-        String datosPeticion = "Peticion{" +
-                "idCliente='" + idCliente + '\'' +
-                "Solicitud='" + datosLibro + '\'' +
-                "Fecha de solicitud='" + LocalDateTime.now() + '\'' +
-                "Fecha límite de devolución='" + LocalDateTime.ofInstant(Instant.now().plusMillis(fechaLimiteDevolucion), ZoneId.of("Europe/Madrid")) + '\'' +
-                "}";
-
+        String datosPeticion = peticion.toString();
         return datosPeticion;
     }
 
