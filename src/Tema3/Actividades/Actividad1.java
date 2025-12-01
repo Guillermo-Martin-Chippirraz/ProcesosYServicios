@@ -1,6 +1,6 @@
 package Tema3.Actividades;
 
-import java.io.Serializable;
+import java.io.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -26,6 +26,15 @@ public class Actividad1 implements Serializable {
         setFechaNacimiento(year, month, day);
         setSueldo(sueldo);
         setNumeroDeTelefono(numeroDeTelefono);
+    }
+
+    public Actividad1(Actividad1 copia){
+        setId(copia.getId());
+        setNombre(copia.getNombre());
+        setApellido(copia.getApellido());
+        setFechaNacimiento(copia.getFechaNacimiento());
+        setSueldo(copia.sueldo);
+        setNumeroDeTelefono(copia.getNumeroDeTelefono());
     }
 
     public int getId() {
@@ -60,6 +69,9 @@ public class Actividad1 implements Serializable {
         return fechaNacimiento;
     }
 
+    public void setFechaNacimiento(LocalDate fechaNacimiento){
+        this.fechaNacimiento = LocalDate.from(fechaNacimiento);
+    }
     public void setFechaNacimiento(String year, String month, String day) {
         int yearNum = Integer.parseInt(year);
         int dayNum = Integer.parseInt(day);
@@ -98,5 +110,35 @@ public class Actividad1 implements Serializable {
 
     public void setNumeroDeTelefono(String numeroDeTelefono) {
         this.numeroDeTelefono = numeroDeTelefono;
+    }
+
+    @Override
+    public String toString() {
+        return "Actividad1{" +
+                "id=" + id +
+                ", nombre='" + nombre + '\'' +
+                ", apellido='" + apellido + '\'' +
+                ", fechaNacimiento=" + fechaNacimiento +
+                ", sueldo=" + sueldo +
+                ", numeroDeTelefono='" + numeroDeTelefono + '\'' +
+                '}';
+    }
+
+    public static void main(String[] args) {
+        Actividad1 actividad1 = new Actividad1(1, "Actividonio", "Primero", "1990", "01", "01", 2000.00f, "+34 123 456 789");
+        try(ObjectOutputStream guardar = new ObjectOutputStream(new FileOutputStream("actividad1.txt")))
+        {
+            guardar.writeObject(actividad1);
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+
+        try (ObjectInputStream cargar = new ObjectInputStream((new FileInputStream("actividad1.txt"))))
+        {
+            Actividad1 actividad12 = new Actividad1((Actividad1) cargar.readObject());
+            System.out.println(actividad12.toString());
+        }catch (IOException | ClassNotFoundException e){
+            e.printStackTrace();
+        }
     }
 }
