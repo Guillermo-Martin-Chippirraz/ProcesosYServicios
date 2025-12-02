@@ -5,12 +5,13 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
 
 /**
  * Clase que simula la biblioteca de la actividad 2 de la práctica del tema 3
  * @author Guillermo Martín Chippirraz
- * @version v3.2
+ * @version v3.2.2
  */
 public class Biblioteca implements Serializable{
     /**
@@ -254,35 +255,19 @@ public class Biblioteca implements Serializable{
      *         Se imprime un mensaje de éxito.
      *     </li>
      *     <li>
-     *         Se crea un objeto de la clase auxiliar Peticion peticion y se inicializa con el constructor por parámetros al que
-     *         se pasa el parámetro idCliente y la variable libroPedido.
-     *     </li>
-     *     <li>
      *         Se invoca al método notifyAll()
-     *     </li>
-     *     <li>
-     *         Se declara el String datosPeticion y se le asigna el JSON devuelto por el método toString() del objeto
-     *         peticion.
      *     </li>
      * </ol>
      * @since v3.2.1
      * @see Libro
      * @see Libro#getTitulo()
-     * @see Peticion#Peticion(int, Biblioteca.Libro)
-     * @see Peticion#toString()
-     * @param idCliente Entero que se enviará como parámetro al constructor de la clase auxiliar Peticion
      * @param titulo String que se usará como filtro para buscar el objeto de la clase Libro a solicitar.
-     * @return String con los datos de la petición
+     * @return Objeto de la clase Libro solicitado
      */
-    public synchronized String prestarLibro(int idCliente, String titulo){
+    public synchronized Libro prestarLibro(String titulo){
         if (libros.isEmpty()){
             System.out.println("Bibliotecario sabrosón: No hay libroh, mi amol, solo masibón.");
-            try{
-                wait();
-            }catch(InterruptedException e){
-                e.printStackTrace();
-                Thread.currentThread().interrupt();
-            }
+            return new Libro();
         }
         boolean libroEnStock = false;
         Libro libroPedido = new Libro();
@@ -295,19 +280,16 @@ public class Biblioteca implements Serializable{
         }
         if (!libroEnStock){
             System.out.println("Bibliotecario sabrosón: Lo siento, mi amol, el libro que buhcah no lo han devuerto.");
-            try{
-                wait();
-            }catch(InterruptedException e){
-                e.printStackTrace();;
-                Thread.currentThread().interrupt();
-            }
+            return libroPedido;
         }
 
         System.out.println("Bibliotecario sabrosón: Aquí tieneh tu libro, mi amol.");
-        Peticion peticion = new Peticion(idCliente, libroPedido);
         notifyAll();
-        String datosPeticion = peticion.toString();
-        return datosPeticion;
+        return libroPedido;
     }
 
+    public synchronized void devolucionLibro(Libro libro){
+        libros.add(libro);
+        System.out.println("Grasiah pol devolvelo, mi amol...");
+    }
 }

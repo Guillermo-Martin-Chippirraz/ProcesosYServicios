@@ -9,7 +9,8 @@ public class Servidor {
         final int PUERTO = 5555;
         Random random = new Random();
 
-        try (ServerSocket serverSocket = new ServerSocket(PUERTO)) {
+        try (ServerSocket serverSocket = new ServerSocket()) {
+            serverSocket.bind(new InetSocketAddress("localhost", PUERTO));
             System.out.println("Servidor iniciado en el puerto " + PUERTO);
             Socket socket = serverSocket.accept();
             System.out.println("Cliente conectado.");
