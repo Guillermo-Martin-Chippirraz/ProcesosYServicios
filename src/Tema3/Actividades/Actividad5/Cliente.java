@@ -1,42 +1,35 @@
 package Tema3.Actividades.Actividad5;
 
 import java.io.*;
-import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.net.*;
 import java.util.Scanner;
 
 public class Cliente {
     public static void main(String[] args) {
-        Scanner scan = new Scanner(System.in);
-        try {
-            Socket clientSocket = new Socket();
-            InetSocketAddress addr = new InetSocketAddress("localhost", 5555);
-            clientSocket.connect(addr);
-            InputStream is = clientSocket.getInputStream();
-            DataInputStream dis = new DataInputStream(is);
-            OutputStream os = clientSocket.getOutputStream();
-            DataOutputStream dos = new DataOutputStream(os);
-            String pregunta = dis.readUTF();
-            System.out.println(pregunta);
+        final String HOST = "localhost";
+        final int PUERTO = 5555;
+        Scanner scanner = new Scanner(System.in);
+
+        try (Socket socket = new Socket(HOST, PUERTO)) {
+            DataInputStream dis = new DataInputStream(socket.getInputStream());
+            DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+
+            System.out.println(dis.readUTF()); // Mensaje de bienvenida
+
             String respuesta;
-            int numeroCliente = scan.nextInt();
-            dos.writeInt(numeroCliente);
-            respuesta = dis.readUTF();
-            while (respuesta.endsWith("...") || numeroCliente != -1){
-                numeroCliente = scan.nextInt();
-                dos.writeInt(numeroCliente);
+            int intento;
+
+            do {
+                System.out.print("Tu intento: ");
+                intento = scanner.nextInt();
+                dos.writeInt(intento);
+
                 respuesta = dis.readUTF();
-            }
-            if (respuesta.endsWith("*")){
-                System.out.println(dis.readUTF());
-            }else {
-                System.out.println(dis.readUTF());
-                System.out.println(dis.readInt());
-                System.out.println(dis.readUTF());
-            }
-            clientSocket.close();
-        }catch (IOException e){
+                System.out.println("Servidor: " + respuesta);
+            } while (!respuesta.equals("Correcto") && intento != -1);
+
+            socket.close();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

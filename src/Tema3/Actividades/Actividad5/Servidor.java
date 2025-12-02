@@ -1,41 +1,45 @@
 package Tema3.Actividades.Actividad5;
 
 import java.io.*;
-import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.net.*;
 import java.util.Random;
 
 public class Servidor {
-    private static final Random random = new Random();
     public static void main(String[] args) {
-        try {
-            ServerSocket serverSocket = new ServerSocket();
-            InetSocketAddress addr = new InetSocketAddress("localhost", 5555);
-            serverSocket.bind(addr);
-            Socket newSocket = serverSocket.accept();
-            InputStream is = newSocket.getInputStream();
-            DataInputStream dis = new DataInputStream(is);
-            OutputStream os = newSocket.getOutputStream();
-            DataOutputStream dos = new DataOutputStream(os);
-            int numero = random.nextInt(100) + 1;
-            String pregunta = "Te desafío. ¿Qué número estoy pensando del 1 al 100?";
-            dos.writeUTF(pregunta);
-            int respuesta = dis.readInt();
-            while (respuesta != numero || respuesta == -1){
-                String malaRespuesta = "Me temo que ese no es el número, vuelve a intentarlo...";
-                dos.writeUTF(malaRespuesta);
-            }
-            if (respuesta == numero){
-                String buenaRespuesta = "Felicidades, ha acertado el número *aplausos lentos y sonoros*";
-                dos.writeUTF(buenaRespuesta);
-            }else {
-                dos.writeUTF("Jajajaja, una desgracia, me temo que el número correcto es: ");
-                dos.writeInt(numero);
-                dos.writeUTF("Adiós, pringado.");
-            }
-            serverSocket.close();
-        }catch (IOException e){
+        final int PUERTO = 5555;
+        Random random = new Random();
+
+        try (ServerSocket serverSocket = new ServerSocket(PUERTO)) {
+            System.out.println("Servidor iniciado en el puerto " + PUERTO);
+            Socket socket = serverSocket.accept();
+            System.out.println("Cliente conectado.");
+
+            int numeroSecreto = random.nextInt(100) + 1;
+            System.out.println("Número secreto: " + numeroSecreto);
+
+            DataInputStream dis = new DataInputStream(socket.getInputStream());
+            DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+
+            dos.writeUTF("¡Bienvenido! Adivina el número entre 1 y 100. Escribe -1 para salir.");
+
+            int intento;
+            do {
+                intento = dis.readInt();
+                if (intento == -1) {
+                    dos.writeUTF("Juego terminado por el usuario.");
+                    break;
+                } else if (intento < numeroSecreto) {
+                    dos.writeUTF("Mayor");
+                } else if (intento > numeroSecreto) {
+                    dos.writeUTF("Menor");
+                } else {
+                    dos.writeUTF("Correcto");
+                }
+            } while (intento != numeroSecreto);
+
+            socket.close();
+            System.out.println("Conexión cerrada.");
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
