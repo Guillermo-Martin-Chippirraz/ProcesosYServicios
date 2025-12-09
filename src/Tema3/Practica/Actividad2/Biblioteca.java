@@ -6,12 +6,13 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Random;
 
 /**
  * Clase que simula la biblioteca de la actividad 2 de la práctica del tema 3
  * @author Guillermo Martín Chippirraz
- * @version v3.2.2
+ * @version v3.2.4
  */
 public class Biblioteca implements Serializable{
     /**
@@ -58,20 +59,35 @@ public class Biblioteca implements Serializable{
          * Transforma el String recibido por parámetros para que siga el formato adecuado (Inicial de cada palabra en mayúsculas)
          * y, posteriormente, compara con los valores admitidos. Si coincide con alguno de ellos, el String resultante será
          * almacenado en el atributo titulo. En caso contrario, se almacenará el valor por defecto.
+         * @since v3.2.4
          * @param titulo String a transformar, validar y almacenar, en ese orden, en el atributo titulo.
          */
         public void setTitulo(String titulo) {
-            if (!titulo.contains(" "))
-                titulo = titulo.substring(0, 1).toUpperCase() + titulo.substring(1, genero.length()-1).toLowerCase();
-            else {
-                String [] palabras = titulo.split(" ");
-                titulo = "";
-                for(String palabra : palabras){
-                    titulo.concat(palabra.substring(0,1).toUpperCase() + palabra.substring(1, palabra.length() - 1).toLowerCase());
-                }
+            if (titulo == null || titulo.isEmpty()) {
+                this.titulo = titulo;
+                return;
             }
+
+            if (!titulo.contains(" ")) {
+                titulo = titulo.substring(0, 1).toUpperCase() + titulo.substring(1).toLowerCase();
+            } else {
+                String[] palabras = titulo.split(" ");
+                StringBuilder sb = new StringBuilder();
+                for (String palabra : palabras) {
+                    if (!palabra.isEmpty()) {
+                        sb.append(palabra.substring(0, 1).toUpperCase());
+                        if (palabra.length() > 1) {
+                            sb.append(palabra.substring(1).toLowerCase());
+                        }
+                        sb.append(" ");
+                    }
+                }
+                titulo = sb.toString().trim();
+            }
+
             this.titulo = titulo;
         }
+
 
         /**
          * Getter del atributo genero.
@@ -87,27 +103,43 @@ public class Biblioteca implements Serializable{
          * Transforma el String recibido por parámetros para que siga el formato adecuado (Inicial de cada palabra en mayúsculas)
          * y, posteriormente, compara con los valores admitidos. Si coincide con alguno de ellos, el String resultante será
          * almacenado en el atributo genero. En caso contrario, se almacenará el valor por defecto.
-         * @since v3.2
+         * @since v3.2.4
          * @param genero String a transformar, validar y almacenar, en ese orden, en el atributo genero.
          */
-        public void setGenero(String genero){
-            if (!genero.contains(" "))
-                genero = genero.substring(0, 1).toUpperCase() + genero.substring(1, genero.length()-1).toLowerCase();
-            else {
-                String [] palabras = genero.split(" ");
-                genero = "";
-                for(String palabra : palabras){
-                    genero.concat(palabra.substring(0,1).toUpperCase() + palabra.substring(1, palabra.length() - 1).toLowerCase());
-                }
+        public void setGenero(String genero) {
+            if (genero == null || genero.isEmpty()) {
+                this.genero = "";
+                return;
             }
-            switch (genero){
-                case "Fantasía, Ciencia Ficción, Romance, Drama, Policíaca, Histórica, Biografía":
-                    this.genero = genero;
+
+            // Normalizar capitalización
+            String resultado;
+            if (!genero.contains(" ")) {
+                resultado = genero.substring(0, 1).toUpperCase() + genero.substring(1).toLowerCase();
+            } else {
+                String[] palabras = genero.split(" ");
+                StringBuilder sb = new StringBuilder();
+                for (String palabra : palabras) {
+                    if (!palabra.isEmpty()) {
+                        sb.append(palabra.substring(0, 1).toUpperCase());
+                        if (palabra.length() > 1) {
+                            sb.append(palabra.substring(1).toLowerCase());
+                        }
+                        sb.append(" ");
+                    }
+                }
+                resultado = sb.toString().trim();
+            }
+
+            switch (resultado) {
+                case "Fantasía", "Ciencia Ficción", "Romance", "Drama", "Policíaca", "Histórica", "Biográfica":
+                    this.genero = resultado;
                     break;
                 default:
                     this.genero = "";
             }
         }
+
 
         /**
          * Método toString heredado de la clase Object.
@@ -200,20 +232,11 @@ public class Biblioteca implements Serializable{
      * Secuencia de ejecución:
      * <ol>
      *     <li>
-     *         En la condición del if se evalúa si el atributo libros está vacío. De ser así:
+     *         Se evalúa si el atributo libros está vacío. De ser así:
      *         <ol>
-     *             <li>
-     *                 Se imprime un mensaje de retroalimentación por pantalla.
-     *             </li>
-     *             <li>
-     *                 En el bloque try se invoca al método wait();
-     *             </li>
-     *             <li>
-     *                 En el catch: Se monitorean las excepciones de interrupción, devolviéndose la excepción hallada
-     *                 e interrumpiéndose el hilo, en caso de encontrar una.
-     *             </li>
+     *             <li>Se imprime un mensaje de retroalimentación por pantalla.</li>
+     *             <li>Se retorna un nuevo objeto Libro vacío.</li>
      *         </ol>
-     *          En cualquier otro caso, se sigue la secuencia de ejecución.
      *     </li>
      *     <li>
      *         Se declara la variable boolean libroEnStock y se le asigna false.
@@ -222,63 +245,57 @@ public class Biblioteca implements Serializable{
      *         Se declara el objeto de la clase Libro libroPedido y se inicializa con el constructor por defecto.
      *     </li>
      *     <li>
-     *         Por cada objeto de la clase Libro almacenado en el atributo libros, si el atributo titulo de dicho objeto
-     *         coincide con el valor del String en el parámetro titulo:
+     *         Se recorre el atributo libros mediante un iterador. Si el atributo titulo de un objeto coincide con el
+     *         valor del parámetro titulo:
      *         <ol>
-     *             <li>
-     *                 Se asigna el valor true a la variable libroEnStock.
-     *             </li>
-     *             <li>
-     *                 Se copia superficialmente dicho objeto en la variable libroPerdido.
-     *             </li>
-     *             <li>
-     *                 Se elimina el objeto del atributo libros.
-     *             </li>
+     *             <li>Se asigna true a la variable libroEnStock.</li>
+     *             <li>Se copia superficialmente dicho objeto en la variable libroPedido.</li>
+     *             <li>Se elimina el objeto de la colección mediante el iterador.</li>
+     *             <li>Se rompe el bucle para evitar iteraciones innecesarias.</li>
      *         </ol>
      *     </li>
      *     <li>
-     *         Si el valor almacenado en la variable libroEnStock es false:
+     *         Si libroEnStock es false:
      *         <ol>
-     *             <li>
-     *                 Se imprime un mensaje de retroalimentación.
-     *             </li>
-     *             <li>
-     *                 En el bloque try se invoca el método wait().
-     *             </li>
-     *             <li>
-     *                 En el catch: Se monitorean las excepciones de interrupción, devolviéndose la excepción hallada
-     *                 e interrumpiéndose el hilo, en caso de encontrar una.
-     *             </li>
+     *             <li>Se imprime un mensaje de retroalimentación.</li>
+     *             <li>Se retorna libroPedido (vacío).</li>
      *         </ol>
      *     </li>
      *     <li>
-     *         Se imprime un mensaje de éxito.
+     *         Se imprime un mensaje de éxito indicando que el libro ha sido prestado.
      *     </li>
      *     <li>
-     *         Se invoca al método notifyAll()
+     *         Se invoca al método notifyAll() para despertar posibles hilos en espera.
      *     </li>
      * </ol>
-     * @since v3.2.1
+     * @since v3.2.4
      * @see Libro
      * @see Libro#getTitulo()
      * @param titulo String que se usará como filtro para buscar el objeto de la clase Libro a solicitar.
      * @return Objeto de la clase Libro solicitado
      */
-    public synchronized Libro prestarLibro(String titulo){
-        if (libros.isEmpty()){
+    public synchronized Libro prestarLibro(String titulo) {
+        if (libros.isEmpty()) {
             System.out.println("Bibliotecario sabrosón: No hay libroh, mi amol, solo masibón.");
             return new Libro();
         }
+
         boolean libroEnStock = false;
         Libro libroPedido = new Libro();
-        for (Libro libro : libros){
-            if (libro.getTitulo().equals(titulo)){
+
+        // Uso de la clase Iterator para evitar ConcurrentModificationException
+        Iterator<Libro> it = libros.iterator();
+        while (it.hasNext()) {
+            Libro libro = it.next();
+            if (libro.getTitulo().equals(titulo)) {
                 libroEnStock = true;
                 libroPedido = libro;
-                libros.remove(libro);
+                it.remove(); // eliminación segura
+                break;       // salir del bucle tras encontrar el libro
             }
         }
-        if (!libroEnStock){
+
+        if (!libroEnStock) {
             System.out.println("Bibliotecario sabrosón: Lo siento, mi amol, el libro que buhcah no lo han devuerto.");
             return libroPedido;
         }
@@ -288,8 +305,28 @@ public class Biblioteca implements Serializable{
         return libroPedido;
     }
 
-    public synchronized void devolucionLibro(Libro libro){
+    /**
+     * Método sincronizado devolucionLibro.
+     * Secuencia de ejecución:
+     * <ol>
+     *     <li>
+     *         Se añade el objeto Libro recibido como parámetro al atributo libros.
+     *     </li>
+     *     <li>
+     *         Se imprime un mensaje de retroalimentación indicando que el libro ha sido devuelto.
+     *     </li>
+     *     <li>
+     *         Se invoca al método notifyAll() para despertar posibles hilos en espera.
+     *     </li>
+     * </ol>
+     * @since v3.2.4
+     * @see Libro
+     * @param libro Objeto de la clase Libro que se devuelve a la biblioteca.
+     */
+    public synchronized void devolucionLibro(Libro libro) {
         libros.add(libro);
         System.out.println("Grasiah pol devolvelo, mi amol...");
+        notifyAll();
     }
+
 }

@@ -28,7 +28,6 @@ public class Servidor {
                 intento = dis.readInt();
                 if (intento == -1) {
                     dos.writeUTF("Juego terminado por el usuario.");
-                    break;
                 } else if (intento < numeroSecreto) {
                     dos.writeUTF("Mayor");
                 } else if (intento > numeroSecreto) {
@@ -36,7 +35,7 @@ public class Servidor {
                 } else {
                     dos.writeUTF("Correcto");
                 }
-            } while (intento != numeroSecreto);
+            } while (intento != numeroSecreto && intento != -1);
 
             socket.close();
             System.out.println("Conexión cerrada.");
