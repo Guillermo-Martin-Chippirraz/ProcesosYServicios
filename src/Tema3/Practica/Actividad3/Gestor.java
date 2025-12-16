@@ -1,5 +1,6 @@
 package Tema3.Practica.Actividad3;
 
+import java.io.*;
 import java.util.ArrayList;
 
 public class Gestor {
@@ -18,11 +19,9 @@ public class Gestor {
     }
 
     public void setCuentas(ArrayList<CuentaBancaria> cuentas) {
-        for (CuentaBancaria cuentaBancaria : cuentas){
-            if (cuentaBancaria.getSaldoActual() != -1f)
-                this.cuentas.add(cuentaBancaria);
-        }
+        this.cuentas = new ArrayList<>(cuentas);
     }
+
 
     public CuentaBancaria getByNum(String numeroDeCuenta){
         for (CuentaBancaria cuenta : cuentas){
@@ -61,15 +60,37 @@ public class Gestor {
     }
 
     public synchronized String transferir(CuentaBancaria cuentaOrigen, CuentaBancaria cuentaDestino, float cantidad){
-        String retiro = retirar(cuentaOrigen, cantidad);
-        String ingreso = ingresar(cuentaDestino, cantidad);
+        if (!cuentas.contains(cuentaOrigen) || !cuentas.contains(cuentaDestino)) {
+            return "Alguna de las cuentas no existe.";
+        }
+        if (cantidad <= 0) return "Cantidad inválida.";
 
-        if (retiro.startsWith("Se han retirado")){
-            if (ingreso.startsWith("Se han ingresado")) return "Se han transferido " + cantidad + " € desde la cuenta " +
-                    cuentaOrigen.getNumeroDeCuenta() + " hasta la cuenta " + cuentaDestino.getNumeroDeCuenta() + " con éxito";
-            else if (ingreso.startsWith("Debe")) return ingreso;
-            else return "La cuenta con número " + cuentaDestino.getNumeroDeCuenta() + " no existe.";
-        } else if (retiro.startsWith("Debe")) return retiro;
-        else return "La cuenta con número " + cuentaOrigen.getNumeroDeCuenta() + " no existe.";
+        if (cuentaOrigen.getSaldoActual() < cantidad) return "No hay dinero suficiente en la cuenta origen.";
+
+        cuentaOrigen.setSaldoActual(cuentaOrigen.getSaldoActual() - cantidad);
+        cuentaDestino.setSaldoActual(cuentaDestino.getSaldoActual() + cantidad);
+
+        return "Se han transferido " + cantidad + " € desde la cuenta " +
+                cuentaOrigen.getNumeroDeCuenta() + " hasta la cuenta " + cuentaDestino.getNumeroDeCuenta();
+    }
+
+    public void guardarCuentas(String ruta) throws IOException {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(ruta))) {
+            for (CuentaBancaria c : cuentas) {
+                bw.write(c.getNumeroDeCuenta() + ";" + c.getSaldoActual());
+                bw.newLine();
+            }
+        }
+    }
+
+    public void cargarCuentas(String ruta) throws IOException {
+        cuentas.clear();
+        try (BufferedReader br = new BufferedReader(new FileReader(ruta))) {
+            String linea;
+            while ((linea = br.readLine()) != null) {
+                String[] partes = linea.split(";");
+                cuentas.add(new CuentaBancaria(partes[0], Float.parseFloat(partes[1])));
+            }
+        }
     }
 }

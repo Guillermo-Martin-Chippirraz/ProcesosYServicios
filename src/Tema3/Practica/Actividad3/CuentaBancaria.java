@@ -1,5 +1,7 @@
 package Tema3.Practica.Actividad3;
 
+import java.io.Serializable;
+
 public class CuentaBancaria {
     private String numeroDeCuenta;
     private float saldoActual;
@@ -27,6 +29,10 @@ public class CuentaBancaria {
     }
 
     public void setSaldoActual(float saldoActual) {
-        this.saldoActual = (saldoActual*1000 % 100 == 0) ? saldoActual : -1f;
+        if (saldoActual >= 0) {
+            this.saldoActual = Math.round(saldoActual * 100f) / 100f;
+        } else {
+            this.saldoActual = 0f; // nunca saldo negativo
+        }
     }
 }
