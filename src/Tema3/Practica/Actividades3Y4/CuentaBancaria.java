@@ -1,6 +1,4 @@
-package Tema3.Practica.Actividad3;
-
-import java.io.Serializable;
+package Tema3.Practica.Actividades3Y4;
 
 public class CuentaBancaria {
     private String numeroDeCuenta;

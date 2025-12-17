@@ -1,7 +1,4 @@
-package Tema3.Practica.Actividad3;
-
-import java.util.ArrayList;
-import java.util.Random;
+package Tema3.Practica.Actividades3Y4;
 
 public class Main {
     public static void main(String[] args) {

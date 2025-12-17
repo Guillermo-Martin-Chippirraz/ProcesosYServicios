@@ -1,4 +1,4 @@
-package Tema3.Practica.Actividad3;
+package Tema3.Practica.Actividades3Y4;
 
 public class Usuario {
     private String nombre;

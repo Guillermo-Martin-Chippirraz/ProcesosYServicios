@@ -1,9 +1,8 @@
-package Tema3.Practica.Actividad3;
+package Tema3.Practica.Actividades3Y4;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Scanner;
 
