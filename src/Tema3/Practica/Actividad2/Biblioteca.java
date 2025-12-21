@@ -143,6 +143,7 @@ public class Biblioteca implements Serializable{
 
         /**
          * Método toString heredado de la clase Object.
+         * @since v3.2
          * @return JSON con el valor de cada atributo almacenado del objeto llamador.
          */
         @Override
