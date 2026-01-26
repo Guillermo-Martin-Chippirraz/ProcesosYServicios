@@ -2,6 +2,7 @@ package Tema4.Practica.Actividad2.servidor;
 
 import Tema4.Practica.Actividad2.modelos.Alerta;
 import Tema4.Practica.Actividad2.modelos.LecturaSensor;
+import Tema4.Practica.Actividad2.protocolo.MensajeProtocolo;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -19,39 +20,47 @@ public class DistribuidorNotificaciones {
 
     public void enviarLectura(LecturaSensor lectura) {
         List<Socket> lista = suscriptores.get(lectura.getIdSensor());
-        if (lista != null) {
-            String mensaje = "NOTIFY " +
-                    lectura.getIdSensor() + " " +
-                    lectura.getTimestamp() + " " +
-                    lectura.getValor();
-
-            enviarAObservadores(lista, mensaje);
+        if (lista == null) {
+            return;
         }
+        String mensaje = MensajeProtocolo.notificacionLectura(
+                lectura.getIdSensor(),
+                lectura.getTimestamp(),
+                lectura.getValor()
+        );
+        enviarA(lista, mensaje);
     }
 
     public void enviarAlerta(Alerta alerta) {
         List<Socket> lista = suscriptores.get(alerta.getIdSensor());
-        if (lista != null) {
-
-            String mensaje = "ALERT " +
-                    alerta.getIdSensor() + " " +
-                    alerta.getTimestamp() + " " +
-                    alerta.getValor() + " " +
-                    alerta.getDescripcion();
-
-            enviarAObservadores(lista, mensaje);
+        if (lista == null) {
+            return;
         }
+        String mensaje = MensajeProtocolo.notificacionAlerta(
+                alerta.getIdSensor(),
+                alerta.getTimestamp(),
+                alerta.getValor(),
+                alerta.getDescripcion()
+        );
+        enviarA(lista, mensaje);
     }
 
-    private void enviarAObservadores(List<Socket> lista, String mensaje) {
-        lista.removeIf(socket -> {
+    private void enviarA(List<Socket> lista, String mensaje) {
+        int i = 0;
+        while (i < lista.size()) {
+            Socket socket = lista.get(i);
+            boolean eliminar = false;
             try {
-                PrintWriter out = new PrintWriter(socket.getOutputStream());
+                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
                 out.println(mensaje);
-                return false;
             } catch (IOException e) {
-                return true;
+                eliminar = true;
             }
-        });
+            if (eliminar) {
+                lista.remove(i);
+            } else {
+                i = i + 1;
+            }
+        }
     }
 }

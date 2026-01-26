@@ -1,122 +1,98 @@
 package Tema4.Practica.Actividad2.servidor;
-
 import Tema4.Practica.Actividad2.modelos.Alerta;
 import Tema4.Practica.Actividad2.modelos.LecturaSensor;
 import Tema4.Practica.Actividad2.modelos.SensorInfo;
+import Tema4.Practica.Actividad2.util.LoggerSistema;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class ManejadorSensor implements Runnable{
+public class ManejadorSensor implements Runnable {
 
     private final Socket socket;
-    private final Map<String, SensorInfo> sensoresRegistrados;
+    private final Map<String, SensorInfo> sensores;
     private final Map<String, List<Socket>> suscriptores;
+    private final DistribuidorNotificaciones distribuidor;
 
-    public ManejadorSensor(Socket socket, Map<String, SensorInfo> sensoresRegistrados,
-                               Map<String, List<Socket>> suscriptores) {
+    public ManejadorSensor(Socket socket,
+                           Map<String, SensorInfo> sensores,
+                           Map<String, List<Socket>> suscriptores,
+                           DistribuidorNotificaciones distribuidor) {
+
         this.socket = socket;
-        this.sensoresRegistrados = sensoresRegistrados;
+        this.sensores = sensores;
         this.suscriptores = suscriptores;
+        this.distribuidor = distribuidor;
     }
 
+    @Override
     public void run() {
+        BufferedReader entrada = null;
+        PrintWriter salida = null;
         try {
-            BufferedReader entrada = new BufferedReader(
+            entrada = new BufferedReader(
                     new InputStreamReader(socket.getInputStream()));
-            PrintWriter salida = new PrintWriter(socket.getOutputStream());
+            salida = new PrintWriter(socket.getOutputStream(), true);
 
-            boolean continuar = true;
-            while (continuar) {
+            LoggerSistema.info("Sensor conectado desde " + socket.getInetAddress());
+
+            boolean activo = true;
+            while (activo) {
                 String linea = entrada.readLine();
-                if (linea == null) continuar = false;
-                else {
-                    String[] partes = linea.split(" ");
+                if (linea == null) {
+                    activo = false;
+                } else {
+                    LoggerSistema.info("Comando sensor: " + linea);
+                    String[] p = linea.split(" ");
+                    String comando = p[0].toUpperCase();
 
-                    switch (partes[0].toUpperCase()) {
-                        case "REGISTER" -> {
-                            String id = partes[1];
-                            String tipo = partes[2];
-                            int intervalo = Integer.parseInt(partes[3]);
-
-                            sensoresRegistrados.put(id,
-                                    new SensorInfo(id, tipo, intervalo));
-
-                            suscriptores.putIfAbsent(id, new ArrayList<>());
-
-                            salida.println("OK REGISTERED");
+                    if ("REGISTER".equals(comando)) {
+                        String id = p[1];
+                        String tipo = p[2];
+                        int intervalo = Integer.parseInt(p[3]);
+                        sensores.put(id, new SensorInfo(id, tipo, intervalo));
+                        if (!suscriptores.containsKey(id)) {
+                            suscriptores.put(id, new java.util.ArrayList<>());
                         }
-
-                        case "CONFIG" -> {
-                            String id = partes[1];
-                            double min = Double.parseDouble(partes[2]);
-                            double max = Double.parseDouble(partes[3]);
-
-                            SensorInfo info = sensoresRegistrados.get(id);
-                            if (info != null) {
-                                info.setUmbralMin(min);
-                                info.setUmbralMax(max);
-                                salida.println("OK CONGURED");
-                            } else {
-                                salida.println("ERROR SENSOR_NOT_FOUND");
+                        salida.println("OK REGISTERED");
+                    } else if ("CONFIG".equals(comando)) {
+                        String id = p[1];
+                        double min = Double.parseDouble(p[2]);
+                        double max = Double.parseDouble(p[3]);
+                        SensorInfo info = sensores.get(id);
+                        if (info != null) {
+                            info.setUmbralMin(min);
+                            info.setUmbralMax(max);
+                            salida.println("OK CONFIGURED");
+                        } else {
+                            salida.println("ERROR SENSOR_NOT_FOUND");
+                        }
+                    } else if ("DATA".equals(comando)) {
+                        String id = p[1];
+                        double valor = Double.parseDouble(p[2]);
+                        SensorInfo info = sensores.get(id);
+                        if (info != null) {
+                            LecturaSensor lectura = new LecturaSensor(id, LocalDateTime.now(), valor);
+                            distribuidor.enviarLectura(lectura);
+                            boolean fuera = valor < info.getUmbralMin() || valor > info.getUmbralMax();
+                            if (fuera) {
+                                Alerta alerta = new Alerta(id, LocalDateTime.now(), valor, "FUERA_DE_UMBRAL");
+                                distribuidor.enviarAlerta(alerta);
                             }
+                        } else {
+                            salida.println("ERROR SENSOR_NOT_FOUND");
                         }
-
-                        case "DATA" -> {
-                            String id = partes[1];
-                            double valor = Double.parseDouble(partes[2]);
-                            LocalDateTime ts = LocalDateTime.now();
-
-                            SensorInfo info = sensoresRegistrados.get(id);
-                            DistribuidorNotificaciones distribuidor = new DistribuidorNotificaciones(suscriptores);
-                            if (info != null) {
-                                distribuidor.enviarLectura(new LecturaSensor(id, ts, valor));
-
-                                if (valor < info.getUmbralMin() || valor > info.getUmbralMax())
-                                    distribuidor.enviarAlerta(new Alerta(id, ts, valor, "Fuera de umbral"));
-                            } else {
-                                salida.println("ERROR SENSOR_NOT_FOUND");
-                                continuar = false;
-                            }
-                        }
-
-                        default -> salida.println("ERROR UNKNOWN_COMMAND");
+                    } else {
+                        salida.println("ERROR UNKNOWN_COMMAND");
                     }
                 }
             }
+
         } catch (IOException e) {
-            System.out.println("Sensor desconectado: " + socket.getInetAddress());
-        }
-    }
-
-    private void notificarLectura(String id, LocalDateTime ts, double valor) {
-        List<Socket> lista = suscriptores.get(id);
-        if (lista != null) {
-            for (Socket obs : lista) {
-                try {
-                    PrintWriter out = new PrintWriter(obs.getOutputStream());
-                    out.println("NOTIFY " + id + " " + ts + " " + valor);
-                } catch (IOException ignorar) {}
-            }
-        }
-    }
-
-    private void notificarAlerta(String id, LocalDateTime ts, double valor) {
-        List<Socket> lista = suscriptores.get(id);
-        if (lista != null) {
-            for (Socket obs : lista) {
-                try {
-                    PrintWriter out = new PrintWriter(obs.getOutputStream());
-                    out.println("ALERT " + id + " " + ts + " " + valor);
-                } catch (IOException ignorar) {}
-            }
+            LoggerSistema.warn("Sensor desconectado.");
         }
     }
 }

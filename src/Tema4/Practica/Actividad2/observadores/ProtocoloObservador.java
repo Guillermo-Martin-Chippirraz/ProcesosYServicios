@@ -1,11 +1,12 @@
 package Tema4.Practica.Actividad2.observadores;
 
 public class ProtocoloObservador {
-    private static final String LOGIN = "LOGIN";
-    private static final String SUSCRIBE = "SUSCRIBE";
-    private static final String UNSUSCRIBE = "UNSUSCRIBE";
-    private static final String NOTIFY = "NOTIFY";
-    private static final String ALERT = "ALERT";
 
+    public static final String TYPE = "OBSERVADOR";
+    public static final String LOGIN = "LOGIN";
+    public static final String SUBSCRIBE = "SUBSCRIBE";
+    public static final String UNSUBSCRIBE = "UNSUBSCRIBE";
+    public static final String QUIT = "QUIT";
 
+    private ProtocoloObservador() {}
 }
